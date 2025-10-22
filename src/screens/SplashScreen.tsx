@@ -60,7 +60,7 @@ const SplashScreen: React.FC = () => {
   const { width, height } = useWindowDimensions();
   // Calculate scale to cover entire screen including status bar
   const maxDimension = Math.max(width, height);
-  const screenScale = (maxDimension * 1.2) / 100; // 20% extra to ensure complete coverage of the entire screen including status bar
+  const screenScale = (maxDimension * 1.4) / 100; // 40% extra to ensure complete coverage of the entire screen including status bar
 
   // Shared values - must be at top level per Rules of Hooks
   const translateY = useSharedValue<number>(ANIMATION_CONFIG.VALUES.INITIAL_Y);
