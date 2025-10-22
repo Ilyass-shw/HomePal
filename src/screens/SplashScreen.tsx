@@ -63,22 +63,24 @@ const SplashScreen: React.FC = () => {
   const screenScale = (maxDimension * 1.4) / 100; // 40% extra to ensure complete coverage of the entire screen including status bar
 
   // Shared values - must be at top level per Rules of Hooks
-  const translateY = useSharedValue<number>(ANIMATION_CONFIG.VALUES.INITIAL_Y);
-  const translateX = useSharedValue<number>(0);
-  const scale = useSharedValue<number>(1);
-  const rotate = useSharedValue<number>(0);
-  const opacity = useSharedValue<number>(0.4);
+  const shapeTranslateY = useSharedValue<number>(
+    ANIMATION_CONFIG.VALUES.INITIAL_Y
+  );
+  const shapeTranslateX = useSharedValue<number>(0);
+  const shapeScale = useSharedValue<number>(1);
+  const shapeRotate = useSharedValue<number>(0);
+  const shapeOpacity = useSharedValue<number>(0.4);
   const textTranslateX = useSharedValue<number>(
     ANIMATION_CONFIG.VALUES.TEXT_INITIAL_X
   );
   const textOpacity = useSharedValue<number>(0);
 
   // ===== ANIMATED STYLES =====
-  // Main rectangle/circle animation styles
-  const animatedStyle = useAnimatedStyle(() => {
+  // Main shape animation styles (rectangle/circle transformations)
+  const animatedShapeStyle = useAnimatedStyle(() => {
     // Determine border radius based on scale
-    const isSmall = scale.value < ANIMATION_CONFIG.SCALE_THRESHOLDS.SMALL;
-    const isLarge = scale.value > ANIMATION_CONFIG.SCALE_THRESHOLDS.LARGE;
+    const isSmall = shapeScale.value < ANIMATION_CONFIG.SCALE_THRESHOLDS.SMALL;
+    const isLarge = shapeScale.value > ANIMATION_CONFIG.SCALE_THRESHOLDS.LARGE;
     const borderRadius =
       isSmall || isLarge
         ? ANIMATION_CONFIG.BORDER_RADIUS.CIRCLE
@@ -86,12 +88,12 @@ const SplashScreen: React.FC = () => {
 
     return {
       transform: [
-        { translateY: translateY.value },
-        { translateX: translateX.value },
-        { scale: scale.value },
-        { rotate: `${rotate.value}deg` },
+        { translateY: shapeTranslateY.value },
+        { translateX: shapeTranslateX.value },
+        { scale: shapeScale.value },
+        { rotate: `${shapeRotate.value}deg` },
       ],
-      opacity: opacity.value,
+      opacity: shapeOpacity.value,
       borderRadius,
     };
   });
@@ -107,13 +109,13 @@ const SplashScreen: React.FC = () => {
   // ===== ANIMATION SETUP =====
   useEffect(() => {
     // Phase 1: Move rectangle up to center
-    translateY.value = withTiming(ANIMATION_CONFIG.VALUES.FINAL_Y, {
+    shapeTranslateY.value = withTiming(ANIMATION_CONFIG.VALUES.FINAL_Y, {
       duration: ANIMATION_CONFIG.DURATIONS.MOVE_UP,
       easing: Easing.out(Easing.cubic),
     });
 
     // Phase 2: Grow, shrink, and screen coverage sequence
-    scale.value = withDelay(
+    shapeScale.value = withDelay(
       ANIMATION_CONFIG.DELAYS.INITIAL,
       withSequence(
         // 2a: Grow to 1.3x scale
@@ -138,7 +140,7 @@ const SplashScreen: React.FC = () => {
     );
 
     // Phase 3: 360° rotation (happens simultaneously with grow/shrink)
-    rotate.value = withDelay(
+    shapeRotate.value = withDelay(
       ANIMATION_CONFIG.DELAYS.INITIAL,
       withTiming(360, {
         duration: ANIMATION_CONFIG.DURATIONS.ROTATE,
@@ -147,7 +149,7 @@ const SplashScreen: React.FC = () => {
     );
 
     // Phase 4: Horizontal movement
-    translateX.value = withDelay(
+    shapeTranslateX.value = withDelay(
       ANIMATION_CONFIG.DELAYS.MOVE_RIGHT,
       withTiming(ANIMATION_CONFIG.VALUES.MOVE_RIGHT_X, {
         duration: ANIMATION_CONFIG.DURATIONS.MOVE_RIGHT,
@@ -156,7 +158,7 @@ const SplashScreen: React.FC = () => {
     );
 
     // Phase 5: Opacity fade-in
-    opacity.value = withDelay(
+    shapeOpacity.value = withDelay(
       ANIMATION_CONFIG.DELAYS.OPACITY_FADE,
       withTiming(1, {
         duration: ANIMATION_CONFIG.DURATIONS.OPACITY_FADE,
@@ -183,11 +185,11 @@ const SplashScreen: React.FC = () => {
 
     // ===== CLEANUP =====
     return () => {
-      cancelAnimation(translateY);
-      cancelAnimation(translateX);
-      cancelAnimation(scale);
-      cancelAnimation(rotate);
-      cancelAnimation(opacity);
+      cancelAnimation(shapeTranslateY);
+      cancelAnimation(shapeTranslateX);
+      cancelAnimation(shapeScale);
+      cancelAnimation(shapeRotate);
+      cancelAnimation(shapeOpacity);
       cancelAnimation(textTranslateX);
       cancelAnimation(textOpacity);
     };
@@ -197,7 +199,7 @@ const SplashScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1A0026" />
-      <Animated.View style={[styles.gradientContainer, animatedStyle]} />
+      <Animated.View style={[styles.gradientContainer, animatedShapeStyle]} />
       <Animated.Text style={[styles.text, animatedTextStyle]}>
         HomePal
       </Animated.Text>
